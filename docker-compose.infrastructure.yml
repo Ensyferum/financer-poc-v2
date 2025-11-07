@@ -1,0 +1,212 @@
+# =====================================================
+# Docker Compose - Infrastructure Layer
+# Description: Database and messaging infrastructure
+# Version: 1.0.0
+# =====================================================
+
+version: '3.8'
+
+networks:
+  financer-network:
+    driver: bridge
+    name: financer-network
+
+volumes:
+  postgres-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  kafka-data:
+    driver: local
+  zookeeper-data:
+    driver: local
+
+services:
+  # =====================================================
+  # PostgreSQL 16 - Main Relational Database
+  # =====================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: financer-postgres
+    environment:
+      POSTGRES_DB: financer
+      POSTGRES_USER: financer_user
+      POSTGRES_PASSWORD: financer_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - financer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financer_user -d financer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # =====================================================
+  # Flyway - Database Migration Tool (Serverless)
+  # NOTE: This service is executed on-demand via scripts
+  # It does NOT run as a persistent container
+  # =====================================================
+  flyway-migration:
+    image: flyway/flyway:10-alpine
+    container_name: financer-flyway-migration
+    profiles:
+      - migration
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/financer
+      FLYWAY_USER: financer_user
+      FLYWAY_PASSWORD: financer_pass
+      FLYWAY_CONNECT_RETRIES: 60
+      FLYWAY_SCHEMAS: financer
+      FLYWAY_BASELINE_ON_MIGRATE: true
+      FLYWAY_VALIDATE_ON_MIGRATE: true
+      FLYWAY_OUT_OF_ORDER: false
+      FLYWAY_CLEAN_DISABLED: true
+    volumes:
+      - ./db/migrations/postgresql:/flyway/sql
+    networks:
+      - financer-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # =====================================================
+  # MongoDB 7 - NoSQL Database
+  # =====================================================
+  mongodb:
+    image: mongo:7
+    container_name: financer-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo_admin
+      MONGO_INITDB_ROOT_PASSWORD: mongo_pass
+      MONGO_INITDB_DATABASE: financer
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+      - ./db/migrations/mongodb:/docker-entrypoint-initdb.d
+    networks:
+      - financer-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # =====================================================
+  # Zookeeper - Kafka Coordination
+  # =====================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: financer-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 60
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+    networks:
+      - financer-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # =====================================================
+  # Kafka - Message Broker
+  # =====================================================
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: financer-kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - financer-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  # =====================================================
+  # Schema Registry - Kafka Schema Management
+  # =====================================================
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    container_name: financer-schema-registry
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:29092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8082
+    ports:
+      - "8082:8082"
+    networks:
+      - financer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # =====================================================
+  # Kafka UI - Web Interface for Kafka
+  # =====================================================
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: financer-kafka-ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: financer-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8082
+      DYNAMIC_CONFIG_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    networks:
+      - financer-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped

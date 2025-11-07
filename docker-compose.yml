@@ -1,0 +1,14 @@
+# =====================================================
+# Docker Compose - Main Orchestration
+# Description: Combines all infrastructure and services
+# Version: 1.0.0
+# =====================================================
+
+version: '3.8'
+
+# Import infrastructure services
+include:
+  - docker-compose.infrastructure.yml
+
+# Application-specific services will be added here
+# Currently infrastructure only

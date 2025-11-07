@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    =====================================================
+    POM Template: Flyway Integration
+    Description: Example dependencies for microservices
+    =====================================================
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- 
+        Add these dependencies to your microservice pom.xml
+        that uses PostgreSQL database
+    -->
+    
+    <dependencies>
+        <!-- ===================================== -->
+        <!-- Flyway Core - Database Migration     -->
+        <!-- ===================================== -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <!-- ===================================== -->
+        <!-- Flyway PostgreSQL - Driver Support   -->
+        <!-- ===================================== -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- ===================================== -->
+        <!-- PostgreSQL JDBC Driver               -->
+        <!-- ===================================== -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ===================================== -->
+        <!-- Spring Boot Data JPA                 -->
+        <!-- ===================================== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
