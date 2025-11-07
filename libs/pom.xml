@@ -22,10 +22,10 @@
     <modules>
         <module>financer-common</module>
         <module>financer-eureka-client</module>
-        <!-- DTO modules will be added as they are implemented -->
-        <!-- <module>financer-dto-account</module> -->
-        <!-- <module>financer-dto-transaction</module> -->
-        <!-- <module>financer-dto-card</module> -->
+        <!-- DTO modules -->
+        <module>financer-dto-account</module>
+        <module>financer-dto-transaction</module>
+        <module>financer-dto-card</module>
     </modules>
 
     <!-- ========================================= -->
