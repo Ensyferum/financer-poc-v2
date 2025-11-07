@@ -5,9 +5,11 @@
 **Java:** 21  
 **Spring Boot:** 3.2.12  
 **Spring Cloud:** 2023.0.0  
-**Build Time:** 6.868s
+**Build Time:** 12.5s
 
 Bibliotecas compartilhadas para os microserviços do projeto Financer.
+
+**📚 [Documentação Detalhada](../docs/libs/)**
 
 ---
 
@@ -19,14 +21,18 @@ Bibliotecas compartilhadas para os microserviços do projeto Financer.
 Reactor Build Order:
 ├── financer-libs-parent ......... SUCCESS [ 0.599s ]
 ├── financer-common .............. SUCCESS [ 4.162s ]
-└── financer-eureka-client ....... SUCCESS [ 1.708s ]
+├── financer-eureka-client ....... SUCCESS [ 1.708s ]
+├── financer-dto-account ......... SUCCESS [ 2.156s ]
+├── financer-dto-transaction ..... SUCCESS [ 2.013s ]
+└── financer-dto-card ............ SUCCESS [ 1.862s ]
 ─────────────────────────────────────────────────
-Total: 6.868s | Artifacts: 7 | Size: 45.32 KB
+Total: 12.5s | Artifacts: 16 | Libraries: 5
 ```
 
 📄 **Relatórios:**
-- [BUILD_SUCCESS_SUMMARY.md](./BUILD_SUCCESS_SUMMARY.md) - Resumo executivo
-- [BUILD_VALIDATION_REPORT.md](./BUILD_VALIDATION_REPORT.md) - Relatório detalhado
+- [Build Summary](../docs/libs/build-summary.md) - Resumo executivo
+- [Build Report](../docs/libs/build-report.md) - Relatório detalhado  
+- [Changelog](../docs/libs/changelog.md) - Histórico de versões
 
 ---
 
@@ -47,14 +53,26 @@ libs/
 │   ├── Load balancing (Ribbon)
 │   └── Metadata customizado
 │
-├── financer-dto-account/            # 🚧 Account Domain DTOs
-│   └── (em desenvolvimento)
+├── financer-dto-account/            # ✅ Account Domain DTOs
+│   ├── AccountDTO
+│   ├── AccountType (enum)
+│   ├── AccountStatus (enum)
+│   ├── CreateAccountRequest
+│   └── UpdateAccountRequest
 │
-├── financer-dto-transaction/        # 🚧 Transaction Domain DTOs
-│   └── (em desenvolvimento)
+├── financer-dto-transaction/        # ✅ Transaction Domain DTOs
+│   ├── TransactionDTO
+│   ├── TransactionType (enum)
+│   ├── TransactionStatus (enum)
+│   └── CreateTransactionRequest
 │
-└── financer-dto-card/               # 🚧 Card Domain DTOs
-    └── (em desenvolvimento)
+└── financer-dto-card/               # ✅ Card Domain DTOs
+    ├── CardDTO
+    ├── CardType (enum)
+    ├── CardBrand (enum)
+    ├── CardStatus (enum)
+    ├── CreateCardRequest
+    └── UpdateCardRequest
 ```
 
 ---

@@ -2,6 +2,8 @@
 
 Sistema completo de gestão de finanças pessoais baseado em **arquitetura de microserviços** com Java 21, Spring Boot 3.2 e Docker.
 
+**📚 [Documentação Completa](./docs/README.md)**
+
 ---
 
 ## 🚀 Quick Start (2 minutos)
@@ -28,16 +30,23 @@ financer2/
 │   ├── migrations/mongodb/         # MongoDB migrations (futuro)
 │   └── seeds/                      # Dados de exemplo
 │
+├── 📂 libs/                        # 📚 Bibliotecas compartilhadas
+│   ├── financer-common/            # Common utilities
+│   ├── financer-eureka-client/     # Service discovery
+│   ├── financer-dto-account/       # Account DTOs
+│   ├── financer-dto-transaction/   # Transaction DTOs
+│   └── financer-dto-card/          # Card DTOs
+│
 ├── 📂 scripts/                     # Scripts de automação
 │   └── database/
 │       ├── run-migrations.bat      # 🔄 Executa migrations (serverless)
 │       └── clean-database.bat      # 🗑️ Limpa banco de dados
 │
 ├── 📂 docs/                        # 📚 Documentação completa
-│   ├── ARCHITECTURE.md             # Diagramas e arquitetura
-│   ├── DEVELOPMENT-GUIDE.md        # Guia de desenvolvimento
-│   ├── MIGRATION-GUIDE.md          # Guia de migrations
-│   └── ROADMAP.md                  # Próximos passos
+│   ├── README.md                   # Índice da documentação
+│   ├── phase-1/                    # Fase 1 - Database Migration
+│   ├── phase-2/                    # Fase 2 - Shared Libraries
+│   └── libs/                       # Docs das bibliotecas
 │
 ├── 📂 logs/                        # Logs de execução (git ignored)
 │
