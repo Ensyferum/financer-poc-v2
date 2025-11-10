@@ -26,6 +26,7 @@
         <module>financer-dto-account</module>
         <module>financer-dto-transaction</module>
         <module>financer-dto-card</module>
+        <module>financer-dto-user</module>
     </modules>
 
     <!-- ========================================= -->
