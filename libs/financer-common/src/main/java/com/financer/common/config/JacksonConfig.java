@@ -31,7 +31,7 @@ public class JacksonConfig {
      */
     @Bean
     @Primary
-    public ObjectMapper objectMapper() {
+    ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         
         // Register Java 8 Date/Time module

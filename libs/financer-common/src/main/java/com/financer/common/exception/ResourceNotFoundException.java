@@ -13,7 +13,7 @@ public class ResourceNotFoundException extends FinancerException {
 
     public ResourceNotFoundException(String resource, String id) {
         super(
-            String.format("%s not found with id: %s", resource, id),
+                "%s not found with id: %s".formatted(resource, id),
             "RESOURCE_NOT_FOUND",
             HttpStatus.NOT_FOUND
         );
